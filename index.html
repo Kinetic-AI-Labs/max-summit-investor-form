@@ -1,1418 +1,155 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FSBO AI Engine — Toronto Condo Listing Generator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kinetic AI Labs | Investor Interest & Feedback</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      :root {
-        --bg: #0f1117;
-        --bg2: #131520;
-        --bg3: #1a1d27;
-        --border: #2a2d3a;
-        --border2: #1e2130;
-        --gold: #c8964c;
-        --gold-h: #e0ac5f;
-        --text: #e8e2d9;
-        --muted: #666;
-        --dim: #555;
-        --serif: "Playfair Display", Georgia, serif;
-        --sans: "DM Sans", sans-serif;
-      }
-
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--sans);
-        min-height: 100vh;
-      }
-
-      /* ── Header ── */
-      header {
-        border-bottom: 1px solid var(--border2);
-        padding: 22px 40px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .logo {
-        font-family: var(--serif);
-        font-size: 22px;
-        font-weight: 700;
-      }
-      .logo span {
-        color: var(--gold);
-      }
-      .logo-sub {
-        font-size: 11px;
-        color: var(--dim);
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        margin-top: 3px;
-      }
-      .step-label {
-        font-size: 12px;
-        color: var(--dim);
-      }
-
-      /* ── Layout ── */
-      main {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 40px 24px 80px;
-      }
-
-      /* ── Steps ── */
-      .step {
-        display: none;
-      }
-      .step.active {
-        display: block;
-      }
-
-      /* ── Headings ── */
-      .page-title {
-        font-family: var(--serif);
-        font-size: 32px;
-        font-weight: 900;
-        line-height: 1.1;
-        margin-bottom: 10px;
-      }
-      .page-title span {
-        color: var(--gold);
-      }
-      .page-sub {
-        font-size: 14px;
-        color: var(--muted);
-        margin-bottom: 40px;
-      }
-
-      /* ── Section label ── */
-      .label {
-        font-size: 11px;
-        color: var(--gold);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 10px;
-      }
-
-      /* ── Grid ── */
-      .grid2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 28px;
-      }
-      .full {
-        grid-column: 1 / -1;
-      }
-
-      /* ── Inputs ── */
-      input,
-      textarea {
-        width: 100%;
-        background: var(--bg3);
-        border: 1px solid var(--border);
-        color: var(--text);
-        padding: 12px 16px;
-        font-family: var(--sans);
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.2s;
-        appearance: none;
-      }
-      input:focus,
-      textarea:focus {
-        border-color: var(--gold);
-      }
-      input::placeholder,
-      textarea::placeholder {
-        color: #4a4a5a;
-      }
-      textarea {
-        min-height: 260px;
-        resize: vertical;
-        line-height: 1.7;
-      }
-
-      /* ── Feature chips ── */
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 14px;
-      }
-      .chip {
-        padding: 6px 14px;
-        border: 1px solid var(--border);
-        background: transparent;
-        color: #9a9a9a;
-        font-family: var(--sans);
-        font-size: 12px;
-        cursor: pointer;
-        transition: all 0.15s;
-      }
-      .chip:hover,
-      .chip.on {
-        border-color: var(--gold);
-        background: rgba(200, 150, 76, 0.12);
-        color: var(--gold);
-      }
-
-      /* ── Photo upload ── */
-      #photo-drop {
-        border: 1px dashed var(--border);
-        padding: 28px;
-        text-align: center;
-        cursor: pointer;
-        background: var(--bg2);
-        transition: border-color 0.2s;
-        margin-bottom: 12px;
-      }
-      #photo-drop:hover {
-        border-color: var(--gold);
-      }
-      #photo-drop .icon {
-        font-size: 30px;
-        margin-bottom: 8px;
-      }
-      #photo-drop p {
-        font-size: 13px;
-        color: var(--muted);
-      }
-      #photo-input {
-        display: none;
-      }
-      #photo-thumbs {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 28px;
-      }
-      #photo-thumbs img {
-        width: 80px;
-        height: 60px;
-        object-fit: cover;
-        border: 1px solid var(--border);
-      }
-
-      /* ── Buttons ── */
-      .btn-primary {
-        background: var(--gold);
-        color: var(--bg);
-        border: none;
-        padding: 14px 36px;
-        font-family: var(--sans);
-        font-weight: 500;
-        font-size: 15px;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .btn-primary:hover {
-        background: var(--gold-h);
-        transform: translateY(-1px);
-      }
-      .btn-primary:disabled {
-        background: #3a3a3a;
-        color: #666;
-        cursor: not-allowed;
-        transform: none;
-      }
-      .btn-ghost {
-        background: transparent;
-        color: var(--gold);
-        border: 1px solid var(--gold);
-        padding: 10px 24px;
-        font-family: var(--sans);
-        font-size: 13px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .btn-ghost:hover {
-        background: rgba(200, 150, 76, 0.1);
-      }
-      .btn-copy {
-        background: var(--gold);
-        color: var(--bg);
-        border: none;
-        padding: 10px 24px;
-        font-family: var(--sans);
-        font-size: 12px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: background 0.2s;
-        white-space: nowrap;
-      }
-      .btn-copy:hover {
-        background: var(--gold-h);
-      }
-      .btn-copy.copied {
-        background: #4a7c4e;
-        color: #fff;
-      }
-
-      /* ── Row ── */
-      .row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-      }
-
-      /* ── Divider ── */
-      .div {
-        height: 1px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--border),
-          transparent
-        );
-        margin: 32px 0;
-      }
-
-      /* ── Summary card ── */
-      .summary-card {
-        background: var(--bg2);
-        border: 1px solid var(--border2);
-        padding: 24px;
-        margin-bottom: 28px;
-      }
-      .summary-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-      }
-      .summary-item .k {
-        font-size: 10px;
-        color: var(--dim);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-      }
-      .summary-item .v {
-        font-size: 13px;
-        color: var(--text);
-        margin-top: 2px;
-      }
-      .feature-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px solid var(--border2);
-      }
-      .ftag {
-        padding: 3px 10px;
-        background: rgba(200, 150, 76, 0.1);
-        border: 1px solid rgba(200, 150, 76, 0.2);
-        font-size: 11px;
-        color: var(--gold);
-      }
-
-      /* ── Variant row ── */
-      .variant-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        margin-bottom: 20px;
-      }
-      .vcard {
-        padding: 16px 20px;
-        border: 1px solid var(--border);
-        background: transparent;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-align: left;
-      }
-      .vcard.on {
-        border-color: var(--gold);
-        background: rgba(200, 150, 76, 0.06);
-      }
-      .vcard:hover {
-        border-color: #555;
-      }
-      .vcard .vtag {
-        width: 22px;
-        height: 22px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--border);
-        color: #666;
-        font-size: 10px;
-        font-weight: 700;
-        margin-right: 8px;
-        vertical-align: middle;
-      }
-      .vcard.on .vtag {
-        background: var(--gold);
-        color: var(--bg);
-      }
-      .vcard .vname {
-        font-family: var(--serif);
-        font-size: 14px;
-        font-weight: 700;
-        vertical-align: middle;
-      }
-      .vcard.on .vname {
-        color: var(--gold);
-      }
-      .vcard .vdesc {
-        font-size: 11px;
-        color: var(--dim);
-        margin-top: 6px;
-      }
-
-      /* ── Platform tabs ── */
-      .ptabs {
-        display: flex;
-        border-bottom: 1px solid var(--border2);
-        margin-bottom: 20px;
-      }
-      .ptab {
-        padding: 10px 20px;
-        background: transparent;
-        border: none;
-        border-bottom: 2px solid transparent;
-        color: var(--muted);
-        font-family: var(--sans);
-        font-size: 13px;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .ptab.on {
-        color: var(--gold);
-        border-bottom-color: var(--gold);
-      }
-      .ptab:hover {
-        color: var(--text);
-      }
-
-      /* ── Char counter ── */
-      .char-count {
-        font-size: 11px;
-        color: var(--dim);
-      }
-      .char-count.over {
-        color: #c05050;
-      }
-
-      /* ── Progress ── */
-      #progress-box {
-        background: var(--bg2);
-        border: 1px solid var(--border);
-        padding: 24px;
-        margin-bottom: 24px;
-        display: none;
-      }
-      #progress-text {
-        font-size: 13px;
-        color: var(--gold);
-        margin-bottom: 12px;
-      }
-      .pbar {
-        height: 2px;
-        background: var(--bg3);
-        overflow: hidden;
-      }
-      .pbar-inner {
-        height: 100%;
-        background: linear-gradient(90deg, var(--gold), var(--gold-h));
-        animation: sh 1.5s infinite;
-        width: 60%;
-      }
-      @keyframes sh {
-        0% {
-          transform: translateX(-100%);
-        }
-        100% {
-          transform: translateX(250%);
-        }
-      }
-      #progress-note {
-        font-size: 11px;
-        color: var(--dim);
-        margin-top: 10px;
-      }
-
-      /* ── Error ── */
-      #error-box {
-        background: rgba(192, 80, 80, 0.1);
-        border: 1px solid rgba(192, 80, 80, 0.3);
-        color: #e07070;
-        padding: 14px 18px;
-        font-size: 13px;
-        margin-bottom: 16px;
-        display: none;
-      }
-
-      /* ── Posting guide ── */
-      .guide {
-        background: var(--bg2);
-        border: 1px solid var(--border2);
-        padding: 24px;
-        margin-top: 28px;
-        margin-bottom: 28px;
-      }
-      .guide ol {
-        font-size: 13px;
-        color: #888;
-        line-height: 1.9;
-        padding-left: 18px;
-      }
-      .guide ol b {
-        color: var(--text);
-      }
-      .guide ol i {
-        color: #aaa;
-      }
-
-      /* ── Paste copy block ── */
-      .paste-block {
-        border: 1px solid var(--border);
-        background: var(--bg2);
-        padding: 24px;
-        margin-bottom: 32px;
-      }
-      .paste-block textarea {
-        min-height: 140px;
-        margin-bottom: 12px;
-      }
-      .parse-row {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .parse-status {
-        font-size: 12px;
-        color: var(--muted);
-        flex: 1;
-      }
-      .parse-status.ok {
-        color: #4a9e54;
-      }
-      .parse-status.err {
-        color: #c05050;
-      }
-      .or-divider {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin: 28px 0;
-        color: var(--dim);
-        font-size: 12px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-      }
-      .or-divider::before,
-      .or-divider::after {
-        content: "";
-        flex: 1;
-        height: 1px;
-        background: var(--border);
-      }
-
-      /* ── Phase 2 card ── */
-      .phase2 {
-        border: 1px solid rgba(200, 150, 76, 0.3);
-        padding: 24px;
-        background: rgba(200, 150, 76, 0.04);
-        margin-bottom: 32px;
-      }
-      .phase2 h3 {
-        font-family: var(--serif);
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 8px;
-      }
-      .phase2 p {
-        font-size: 13px;
-        color: #888;
-        line-height: 1.7;
-        margin-bottom: 8px;
-      }
-      .phase2 .note {
-        font-size: 11px;
-        color: var(--dim);
-      }
-
-      /* ── Platform hint pills ── */
-      .plat-pills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 24px;
-      }
-      .plat-pill {
-        font-size: 11px;
-        color: #888;
-        padding: 4px 12px;
-        border: 1px solid var(--border);
-      }
-
-      @media (max-width: 600px) {
-        header {
-          padding: 18px 16px;
-        }
-        main {
-          padding: 24px 16px 60px;
-        }
-        .grid2 {
-          grid-template-columns: 1fr;
-        }
-        .full {
-          grid-column: auto;
-        }
-        .summary-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-        .variant-row {
-          grid-template-columns: 1fr;
-        }
-        .ptab {
-          padding: 8px 12px;
-          font-size: 11px;
-        }
-      }
+        body { font-family: 'Inter', sans-serif; }
     </style>
-  </head>
-  <body>
-    <header>
-      <div>
-        <div class="logo">FSBO <span>AI</span> Engine</div>
-        <div class="logo-sub">Direct Sale · No Agent · No Commission</div>
-      </div>
-      <div class="step-label" id="step-label">Step 1 of 3</div>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Top Navigation / Header -->
+    <header class="w-full border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-amber-500 animate-pulse"></div>
+                <span class="font-semibold text-lg tracking-tight">Kinetic AI Labs</span>
+            </div>
+            <span class="text-xs font-mono uppercase tracking-widest text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700">MAX Summit '26</span>
+        </div>
     </header>
 
-    <main>
-      <!-- ══════════════════════════════════════════════════════════
-       STEP 1 — Property Details
-  ══════════════════════════════════════════════════════════ -->
-      <div class="step active" id="step1">
-        <h1 class="page-title">Your Property,<br /><span>Your Terms.</span></h1>
-        <p class="page-sub">
-          Paste your own listing copy to auto-fill the fields — or fill them in
-          manually below.
-        </p>
-
-        <!-- Paste & Parse -->
-        <div class="paste-block">
-          <span class="label"
-            >Paste Your Own Copy — Auto-Fill from Your Description</span
-          >
-          <textarea
-            id="f-paste"
-            placeholder="Paste any existing property description, MLS blurb, notes, or draft listing here. Claude will read it and pull out every detail it can find — price, beds, baths, features, contact info, and more."
-          ></textarea>
-          <div class="parse-row">
-            <button
-              class="btn-primary"
-              id="parse-btn"
-              onclick="parseCopy()"
-              style="padding: 11px 28px; font-size: 13px"
-            >
-              ⚡ Parse &amp; Auto-Fill Fields
-            </button>
-            <span class="parse-status" id="parse-status"></span>
-          </div>
+    <!-- Main Container -->
+    <main class="max-w-3xl mx-auto px-6 py-12 w-full flex-grow">
+        
+        <!-- Intro Hero -->
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-bold tracking-tight mb-3 text-white">The Independent Control Plane for AI Agents</h1>
+            <p class="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+                Thank you for attending our pitch at the MAX Innovation Summit. Please share your feedback and signal your investment interest below.
+            </p>
         </div>
 
-        <div class="or-divider">or fill in manually</div>
+        <!-- Feedback Form Card -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600"></div>
 
-        <!-- Photos -->
-        <span class="label">Photos (optional — up to 12)</span>
-        <div
-          id="photo-drop"
-          onclick="document.getElementById('photo-input').click()"
-        >
-          <div class="icon">📷</div>
-          <p id="photo-label">Click to upload listing photos</p>
-        </div>
-        <input
-          type="file"
-          id="photo-input"
-          multiple
-          accept="image/*"
-          onchange="handlePhotos(this)"
-        />
-        <div id="photo-thumbs"></div>
+            <form id="investorForm" class="space-y-6" onsubmit="handleFormSubmit(event)">
+                
+                <!-- Section 1: Investor Details -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Full Name <span class="text-amber-500">*</span></label>
+                        <input type="text" required placeholder="e.g., Sarah Jenkins" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address <span class="text-amber-500">*</span></label>
+                        <input type="email" required placeholder="s.jenkins@fund.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                </div>
 
-        <!-- Fields -->
-        <div class="grid2">
-          <div class="full">
-            <span class="label">Asking Price</span>
-            <input type="text" id="f-price" placeholder="$649,000" />
-          </div>
-          <div class="full">
-            <span class="label">Address / Area</span>
-            <input
-              type="text"
-              id="f-address"
-              placeholder="Near Rogers Centre, Toronto"
-            />
-          </div>
-          <div>
-            <span class="label">Bedrooms</span>
-            <input type="number" id="f-beds" placeholder="2" />
-          </div>
-          <div>
-            <span class="label">Bathrooms</span>
-            <input type="number" id="f-baths" placeholder="2" />
-          </div>
-          <div>
-            <span class="label">Square Feet</span>
-            <input type="text" id="f-sqft" placeholder="875" />
-          </div>
-          <div>
-            <span class="label">Floor / Unit</span>
-            <input
-              type="text"
-              id="f-floor"
-              placeholder="18th floor, Unit 1804"
-            />
-          </div>
-          <div>
-            <span class="label">Parking</span>
-            <input
-              type="text"
-              id="f-parking"
-              placeholder="1 owned underground spot"
-            />
-          </div>
-          <div>
-            <span class="label">Locker</span>
-            <input type="text" id="f-locker" placeholder="Yes, included" />
-          </div>
-          <div>
-            <span class="label">Maintenance Fee</span>
-            <input type="text" id="f-maintenance" placeholder="$620/month" />
-          </div>
-          <div>
-            <span class="label">Contact (phone / email)</span>
-            <input type="text" id="f-contact" placeholder="647-555-0100" />
-          </div>
-        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Fund / Firm Name <span class="text-amber-500">*</span></label>
+                        <input type="text" required placeholder="e.g., Northgate Ventures" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Investment Focus / Stage</label>
+                        <select class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="" disabled selected>Select investment stage</option>
+                            <option value="Pre-Seed">Pre-Seed</option>
+                            <option value="Seed">Seed (Active)</option>
+                            <option value="Series A">Series A</option>
+                            <option value="Strategic / CVC">Strategic / Corporate Venture</option>
+                        </select>
+                    </div>
+                </div>
 
-        <!-- Features -->
-        <span class="label">Key Features — Select All That Apply</span>
-        <div class="chips" id="chips"></div>
-        <span class="label" style="margin-top: 10px"
-          >Additional Features (comma-separated)</span
-        >
-        <input
-          type="text"
-          id="f-custom"
-          placeholder="e.g. Murphy bed, custom closets, smart thermostat"
-          style="margin-bottom: 32px"
-        />
+                <!-- Section 2: Thesis & Interest Signal -->
+                <div class="pt-4 border-t border-slate-800">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">How strongly does Kinetic's thesis (Out-of-Process Governance & OSFI E-23 Compliance) resonate with you?</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-amber-500/50 cursor-pointer transition-all">
+                            <input type="radio" name="resonance" value="High" class="accent-amber-500 mb-1" required>
+                            <span class="text-xs font-medium text-slate-200">Strong Resonance</span>
+                        </label>
+                        <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-amber-500/50 cursor-pointer transition-all">
+                            <input type="radio" name="resonance" value="Moderate" class="accent-amber-500 mb-1">
+                            <span class="text-xs font-medium text-slate-200">Interesting / Evaluating</span>
+                        </label>
+                        <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-800 bg-slate-950 hover:border-amber-500/50 cursor-pointer transition-all">
+                            <input type="radio" name="resonance" value="Pass" class="accent-amber-500 mb-1">
+                            <span class="text-xs font-medium text-slate-200">Not a Fit Right Now</span>
+                        </label>
+                    </div>
+                </div>
 
-        <div class="div"></div>
-        <div class="row" style="justify-content: flex-end">
-          <button class="btn-primary" onclick="goStep(2)">
-            Continue → Review &amp; Generate
-          </button>
-        </div>
-      </div>
+                <!-- Section 3: Next Steps / Follow-up -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Requested Follow-up Action</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
+                            <input type="checkbox" name="next_step" value="pitch_deck" class="w-4 h-4 rounded border-slate-800 bg-slate-950 text-amber-500 focus:ring-amber-500">
+                            <span>Send full Pitch Deck & Technical Whitepaper</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
+                            <input type="checkbox" name="next_step" value="founder_meeting" class="w-4 h-4 rounded border-slate-800 bg-slate-950 text-amber-500 focus:ring-amber-500">
+                            <span>Schedule 1-on-1 Founder / Technical Deep-Dive Call</span>
+                        </label>
+                        <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
+                            <input type="checkbox" name="next_step" value="demo_access" class="w-4 h-4 rounded border-slate-800 bg-slate-950 text-amber-500 focus:ring-amber-500">
+                            <span>Request Access to Sovereign Demo / Evaluation Kit</span>
+                        </label>
+                    </div>
+                </div>
 
-      <!-- ══════════════════════════════════════════════════════════
-       STEP 2 — Review & Generate
-  ══════════════════════════════════════════════════════════ -->
-      <div class="step" id="step2">
-        <h1 class="page-title">
-          Ready to Generate<br /><span>12 Listing Variants.</span>
-        </h1>
-        <p class="page-sub">
-          3 copy angles × 4 platforms. One click. No agent required.
-        </p>
+                <!-- Section 4: Open Feedback -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Key Questions, Feedback, or Market Insights</label>
+                    <textarea rows="4" placeholder="What stood out during the pitch? Any feedback on valuation, GTM, or regulatory framing..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 transition-colors"></textarea>
+                </div>
 
-        <div class="summary-card">
-          <span class="label">Property Summary</span>
-          <div class="summary-grid" id="summary-grid"></div>
-          <div
-            class="feature-tags"
-            id="summary-features"
-            style="display: none"
-          ></div>
-        </div>
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold py-3 px-6 rounded-lg transition-colors shadow-lg shadow-amber-500/10 cursor-pointer">
+                    Submit Investor Feedback
+                </button>
+            </form>
 
-        <div class="variant-row" style="margin-bottom: 14px">
-          <div
-            style="
-              padding: 16px 20px;
-              border: 1px solid var(--border);
-              background: var(--bg2);
-            "
-          >
-            <span
-              class="vtag"
-              style="
-                display: inline-flex;
-                width: 22px;
-                height: 22px;
-                align-items: center;
-                justify-content: center;
-                background: var(--gold);
-                color: var(--bg);
-                font-size: 10px;
-                font-weight: 700;
-                margin-right: 8px;
-              "
-              >A</span
-            >
-            <span
-              style="
-                font-family: var(--serif);
-                font-size: 14px;
-                font-weight: 700;
-              "
-              >Lifestyle</span
-            >
-            <div style="font-size: 11px; color: var(--dim); margin-top: 6px">
-              Emotion-forward, paint the dream
+            <!-- Success State (Hidden by default) -->
+            <div id="successState" class="hidden text-center py-12 space-y-4">
+                <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-full flex items-center justify-center mx-auto text-xl">✓</div>
+                <h3 class="text-xl font-bold text-white">Feedback Received</h3>
+                <p class="text-slate-400 text-sm max-w-md mx-auto">
+                    Thank you for connecting with Kinetic AI Labs at the MAX Summit. We will review your response and follow up via email shortly.
+                </p>
+                <button onclick="resetForm()" class="text-xs text-amber-500 hover:underline pt-4 font-mono">Submit another response</button>
             </div>
-          </div>
-          <div
-            style="
-              padding: 16px 20px;
-              border: 1px solid var(--border);
-              background: var(--bg2);
-            "
-          >
-            <span
-              style="
-                display: inline-flex;
-                width: 22px;
-                height: 22px;
-                align-items: center;
-                justify-content: center;
-                background: var(--gold);
-                color: var(--bg);
-                font-size: 10px;
-                font-weight: 700;
-                margin-right: 8px;
-              "
-              >B</span
-            >
-            <span
-              style="
-                font-family: var(--serif);
-                font-size: 14px;
-                font-weight: 700;
-              "
-              >Features</span
-            >
-            <div style="font-size: 11px; color: var(--dim); margin-top: 6px">
-              Spec-driven, detail-focused
-            </div>
-          </div>
-          <div
-            style="
-              padding: 16px 20px;
-              border: 1px solid var(--border);
-              background: var(--bg2);
-            "
-          >
-            <span
-              style="
-                display: inline-flex;
-                width: 22px;
-                height: 22px;
-                align-items: center;
-                justify-content: center;
-                background: var(--gold);
-                color: var(--bg);
-                font-size: 10px;
-                font-weight: 700;
-                margin-right: 8px;
-              "
-              >C</span
-            >
-            <span
-              style="
-                font-family: var(--serif);
-                font-size: 14px;
-                font-weight: 700;
-              "
-              >Investment</span
-            >
-            <div style="font-size: 11px; color: var(--dim); margin-top: 6px">
-              ROI &amp; value angle
-            </div>
-          </div>
         </div>
-
-        <div class="plat-pills">
-          <span class="plat-pill">🏠 Kijiji — max 4,000 chars</span>
-          <span class="plat-pill">📘 Facebook — max 600 chars</span>
-          <span class="plat-pill">📸 Instagram — max 300 chars</span>
-          <span class="plat-pill">🤖 Reddit — max 1,500 chars</span>
-        </div>
-
-        <div id="error-box"></div>
-        <div id="progress-box">
-          <div id="progress-text">Initialising…</div>
-          <div class="pbar"><div class="pbar-inner"></div></div>
-          <div id="progress-note">
-            Generating 12 platform-optimised variants — approx 30 seconds
-          </div>
-        </div>
-
-        <div class="div"></div>
-        <div class="row">
-          <button class="btn-ghost" onclick="goStep(1)">← Edit Details</button>
-          <button class="btn-primary" id="gen-btn" onclick="generateAll()">
-            ⚡ Generate All 12 Variants
-          </button>
-        </div>
-      </div>
-
-      <!-- ══════════════════════════════════════════════════════════
-       STEP 3 — Results
-  ══════════════════════════════════════════════════════════ -->
-      <div class="step" id="step3">
-        <h1 class="page-title">
-          Your Listings,<br /><span>Ready to Post.</span>
-        </h1>
-        <p class="page-sub">
-          Select a variant and platform. Copy. Paste. Post. No agent. No
-          commission.
-        </p>
-
-        <!-- Variant selector -->
-        <span class="label">Copy Angle</span>
-        <div class="variant-row" id="variant-row">
-          <button
-            class="vcard on"
-            data-v="emotional"
-            onclick="setVariant('emotional',this)"
-          >
-            <span class="vtag">A</span><span class="vname">Lifestyle</span>
-            <div class="vdesc">Emotion-forward, paint the dream</div>
-          </button>
-          <button
-            class="vcard"
-            data-v="specs"
-            onclick="setVariant('specs',this)"
-          >
-            <span class="vtag">B</span><span class="vname">Features</span>
-            <div class="vdesc">Spec-driven, detail-focused</div>
-          </button>
-          <button
-            class="vcard"
-            data-v="investment"
-            onclick="setVariant('investment',this)"
-          >
-            <span class="vtag">C</span><span class="vname">Investment</span>
-            <div class="vdesc">ROI &amp; value angle</div>
-          </button>
-        </div>
-
-        <!-- Platform tabs -->
-        <div class="ptabs">
-          <button
-            class="ptab on"
-            data-p="kijiji"
-            onclick="setPlatform('kijiji',this)"
-          >
-            🏠 Kijiji
-          </button>
-          <button
-            class="ptab"
-            data-p="facebook"
-            onclick="setPlatform('facebook',this)"
-          >
-            📘 Facebook
-          </button>
-          <button
-            class="ptab"
-            data-p="instagram"
-            onclick="setPlatform('instagram',this)"
-          >
-            📸 Instagram
-          </button>
-          <button
-            class="ptab"
-            data-p="reddit"
-            onclick="setPlatform('reddit',this)"
-          >
-            🤖 Reddit
-          </button>
-        </div>
-
-        <!-- Copy area -->
-        <textarea id="copy-area" oninput="updateCharCount()"></textarea>
-        <div class="row" style="margin-top: 8px">
-          <span class="char-count" id="char-count">0 / 4,000 chars</span>
-          <button class="btn-copy" id="copy-btn" onclick="copyText()">
-            Copy to Clipboard
-          </button>
-        </div>
-
-        <!-- Posting guide -->
-        <div class="guide">
-          <span class="label" id="guide-title">📋 Posting Guide — Kijiji</span>
-          <div id="guide-body"></div>
-        </div>
-
-        <!-- Phase 2 -->
-        <div class="phase2">
-          <h3>Phase 2: Paid A/B Testing</h3>
-          <p>
-            Post organically first. Watch which variant pulls more inquiries.
-            Take the winner to
-            <b style="color: var(--text)">Meta Ads Manager</b> — run Variant A
-            vs B at identical budgets. Optimize for Lead Generation. $300–$500
-            identifies a winner in 7 days in the Toronto GTA market.
-          </p>
-          <div class="note">
-            ⚠️ Meta classifies real estate as a Special Ad Category — declare
-            "Housing" when creating ads.
-          </div>
-        </div>
-
-        <div class="row">
-          <button class="btn-ghost" onclick="goStep(1)">
-            ← Edit &amp; Regenerate
-          </button>
-          <span style="font-size: 12px; color: var(--dim)" id="gen-date"></span>
-        </div>
-      </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+        <p>Kinetic AI Labs Inc. · Markham, Ontario · NATO NCAGE L13Z9</p>
+    </footer>
+
+    <!-- Simple Interactivity Script -->
     <script>
-      // ─── Data ────────────────────────────────────────────────────────────────────
-      const FEATURES = [
-        "Floor-to-ceiling windows",
-        "City skyline view",
-        "Lake view",
-        "Rogers Centre view",
-        "Hardwood floors",
-        "Open concept",
-        "Chef's kitchen",
-        "Stainless appliances",
-        "Quartz counters",
-        "In-suite laundry",
-        "Central A/C",
-        "Balcony",
-        "Terrace",
-        "Gym",
-        "Rooftop terrace",
-        "Concierge",
-        "Guest suite",
-        "Party room",
-        "Pet-friendly",
-        "Bike storage",
-        "EV charging",
-        "Smart home",
-        "Renovated",
-      ];
-
-      const PLATFORMS = {
-        kijiji: {
-          label: "Kijiji",
-          max: 4000,
-          tone: "straightforward and detailed, Canadian marketplace style",
-        },
-        facebook: {
-          label: "Facebook",
-          max: 600,
-          tone: "warm and community-focused, conversational",
-        },
-        instagram: {
-          label: "Instagram",
-          max: 300,
-          tone: "aspirational and visual, lifestyle-forward, with 5 relevant hashtags at the end",
-        },
-        reddit: {
-          label: "Reddit",
-          max: 1500,
-          tone: "honest and transparent, no-agent framing, direct to buyer",
-        },
-      };
-
-      const GUIDES = {
-        kijiji: `<ol>
-    <li>Go to <b>kijiji.ca</b> → Post Ad → Real Estate → Condo for Sale</li>
-    <li>Select <b>Toronto, ON</b> and enter your asking price</li>
-    <li>Paste the generated copy into the description field</li>
-    <li>Upload your photos (Kijiji supports up to 20)</li>
-    <li>Under "Seller type" select <b>Private Seller</b></li>
-    <li>Post — free listing, renewed every 30 days</li>
-  </ol>`,
-        facebook: `<ol>
-    <li>Go to <b>Facebook Marketplace</b> → Create Listing → Home for Sale</li>
-    <li>Enter price, address, beds, baths — Facebook auto-populates the form</li>
-    <li>Paste copy into the description field</li>
-    <li>Upload photos (up to 50 supported)</li>
-    <li>Also post in <b>Toronto Real Estate Buy Sell</b> Facebook Groups for extra reach</li>
-  </ol>`,
-        instagram: `<ol>
-    <li>Create a <b>carousel post</b> (up to 10 photos) for maximum organic reach</li>
-    <li>Use your best exterior or view shot as the cover image</li>
-    <li>Paste the AI caption — hashtags are pre-included</li>
-    <li>For video walkthroughs: post as a <b>Reel</b> (15–90 sec) for 3× the reach of a static post</li>
-    <li>Tag location: <b>Entertainment District, Toronto</b></li>
-  </ol>`,
-        reddit: `<ol>
-    <li>Post to <b>r/TorontoRealEstate</b> — read the pinned rules first (no spam)</li>
-    <li>Also try <b>r/toronto</b> on weekdays at 9am or 12pm EST for peak visibility</li>
-    <li>Title tip: <i>[FSBO] 2BR near Rogers Centre — $649K, DM for showing</i></li>
-    <li>Paste copy as the post body; add photos via direct upload or Imgur</li>
-    <li>Reply to <b>every comment within 24 hrs</b> — Reddit rewards engagement with visibility</li>
-  </ol>`,
-      };
-
-      // ─── State ────────────────────────────────────────────────────────────────────
-      let activeVariant = "emotional";
-      let activePlatform = "kijiji";
-      let copies = {};
-      let selectedChips = [];
-
-      // ─── Init chips ───────────────────────────────────────────────────────────────
-      (function initChips() {
-        const el = document.getElementById("chips");
-        FEATURES.forEach((f) => {
-          const b = document.createElement("button");
-          b.className = "chip";
-          b.textContent = f;
-          b.onclick = () => {
-            b.classList.toggle("on");
-            selectedChips = selectedChips.includes(f)
-              ? selectedChips.filter((x) => x !== f)
-              : [...selectedChips, f];
-          };
-          el.appendChild(b);
-        });
-      })();
-
-      // ─── Parse & Auto-Fill ────────────────────────────────────────────────────────
-      async function parseCopy() {
-        const copy = document.getElementById("f-paste").value.trim();
-        if (!copy) return;
-
-        const btn = document.getElementById("parse-btn");
-        const status = document.getElementById("parse-status");
-        btn.disabled = true;
-        btn.textContent = "Parsing…";
-        status.textContent = "";
-        status.className = "parse-status";
-
-        try {
-          const resp = await fetch("/api/parse", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ copy }),
-          });
-          if (!resp.ok) {
-            const e = await resp.json().catch(() => ({}));
-            throw new Error(e.error || `Server error ${resp.status}`);
-          }
-          const d = await resp.json();
-
-          // Fill simple text fields
-          const map = {
-            price: "f-price",
-            address: "f-address",
-            beds: "f-beds",
-            baths: "f-baths",
-            sqft: "f-sqft",
-            floor: "f-floor",
-            parking: "f-parking",
-            locker: "f-locker",
-            maintenance: "f-maintenance",
-            contact: "f-contact",
-          };
-          let filled = 0;
-          for (const [key, id] of Object.entries(map)) {
-            if (d[key]) {
-              document.getElementById(id).value = d[key];
-              filled++;
-            }
-          }
-
-          // Auto-select matching feature chips
-          if (Array.isArray(d.features) && d.features.length) {
-            const parsedLower = d.features.map((f) => f.toLowerCase());
-            document.querySelectorAll(".chip").forEach((chip) => {
-              const chipText = chip.textContent.toLowerCase();
-              const match = parsedLower.some(
-                (f) =>
-                  f.includes(chipText) || chipText.includes(f.split(" ")[0]),
-              );
-              if (match && !chip.classList.contains("on")) {
-                chip.classList.add("on");
-                const feat = chip.textContent;
-                if (!selectedChips.includes(feat)) selectedChips.push(feat);
-              }
-            });
-
-            // Extras that didn't match a chip go into custom field
-            const chipTextsLower = FEATURES.map((f) => f.toLowerCase());
-            const extras = d.features.filter(
-              (f) =>
-                !chipTextsLower.some(
-                  (c) =>
-                    c.includes(f.toLowerCase()) ||
-                    f.toLowerCase().includes(c.split(" ")[0]),
-                ),
-            );
-            if (extras.length) {
-              const existing = document.getElementById("f-custom").value.trim();
-              document.getElementById("f-custom").value = existing
-                ? existing + ", " + extras.join(", ")
-                : extras.join(", ");
-            }
-            filled += d.features.length;
-          }
-
-          status.textContent = `✓ ${filled} detail${filled !== 1 ? "s" : ""} extracted — review and adjust below`;
-          status.className = "parse-status ok";
-        } catch (e) {
-          status.textContent = "⚠️ " + e.message;
-          status.className = "parse-status err";
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "⚡ Parse & Auto-Fill Fields";
-        }
-      }
-
-      // ─── Photo upload ─────────────────────────────────────────────────────────────
-      function handlePhotos(input) {
-        const files = Array.from(input.files).slice(0, 12);
-        document.getElementById("photo-label").textContent =
-          `${files.length} photo${files.length !== 1 ? "s" : ""} loaded`;
-        const thumbs = document.getElementById("photo-thumbs");
-        thumbs.innerHTML = "";
-        files.forEach((f) => {
-          const img = document.createElement("img");
-          img.src = URL.createObjectURL(f);
-          thumbs.appendChild(img);
-        });
-      }
-
-      // ─── Step navigation ──────────────────────────────────────────────────────────
-      function goStep(n) {
-        document
-          .querySelectorAll(".step")
-          .forEach((s) => s.classList.remove("active"));
-        document.getElementById("step" + n).classList.add("active");
-        document.getElementById("step-label").textContent = `Step ${n} of 3`;
-        window.scrollTo(0, 0);
-        if (n === 2) buildSummary();
-      }
-
-      // ─── Summary ──────────────────────────────────────────────────────────────────
-      function buildSummary() {
-        const fields = [
-          ["price", "Asking Price"],
-          ["address", "Address"],
-          ["beds", "Bedrooms"],
-          ["baths", "Bathrooms"],
-          ["sqft", "Sq Ft"],
-          ["floor", "Floor/Unit"],
-          ["parking", "Parking"],
-          ["locker", "Locker"],
-          ["maintenance", "Maint. Fee"],
-          ["contact", "Contact"],
-        ];
-        const grid = document.getElementById("summary-grid");
-        grid.innerHTML = "";
-        fields.forEach(([id, label]) => {
-          const v = document.getElementById("f-" + id).value.trim();
-          if (!v) return;
-          const d = document.createElement("div");
-          d.className = "summary-item";
-          d.innerHTML = `<div class="k">${label}</div><div class="v">${v}</div>`;
-          grid.appendChild(d);
-        });
-
-        const ft = document.getElementById("summary-features");
-        const custom = document
-          .getElementById("f-custom")
-          .value.split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const all = [...selectedChips, ...custom];
-        if (all.length) {
-          ft.style.display = "flex";
-          ft.innerHTML = all
-            .map((f) => `<span class="ftag">${f}</span>`)
-            .join("");
-        } else {
-          ft.style.display = "none";
-        }
-      }
-
-      // ─── Prompt builder ───────────────────────────────────────────────────────────
-      function buildPrompt(variantId, platformId) {
-        const p = PLATFORMS[platformId];
-        const custom = document
-          .getElementById("f-custom")
-          .value.split(",")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const allFeatures =
-          [...selectedChips, ...custom].join(", ") || "Modern Toronto condo";
-        const variantInstr =
-          variantId === "emotional"
-            ? "Lifestyle/emotional — lead with feeling, paint the dream of living there, use sensory language"
-            : variantId === "specs"
-              ? "Features/specs — lead with the facts, bullet points acceptable, for buyers who want detail"
-              : "Investment angle — mention price per sqft if calculable, rental potential near Rogers Centre/downtown Toronto, appreciation in the Entertainment District";
-
-        return `You are a world-class Toronto real estate copywriter. Write a direct-sale (FSBO — no agent, no MLS) listing with these details:
-
-PROPERTY DETAILS:
-- Price: ${document.getElementById("f-price").value || "Not specified"}
-- Location: ${document.getElementById("f-address").value || "Toronto"}
-- Bedrooms: ${document.getElementById("f-beds").value || "?"}
-- Bathrooms: ${document.getElementById("f-baths").value || "?"}
-- Square Feet: ${document.getElementById("f-sqft").value || "?"}
-- Floor/Unit: ${document.getElementById("f-floor").value || "?"}
-- Parking: ${document.getElementById("f-parking").value || "None listed"}
-- Locker: ${document.getElementById("f-locker").value || "None listed"}
-- Maintenance Fee: ${document.getElementById("f-maintenance").value || "Not specified"}
-- Key Features: ${allFeatures}
-- Contact: ${document.getElementById("f-contact").value || "[Owner contact]"}
-
-PLATFORM: ${p.label}
-MAX LENGTH: ${p.max} characters
-TONE: ${p.tone}
-VARIANT: ${variantInstr}
-
-RULES:
-- Private seller (FSBO). DO NOT mention agents or MLS.
-- Include contact info naturally at the end.
-- Stay within the character limit.
-- No generic filler. Be specific to this unit and neighbourhood.
-- For Instagram: end with exactly 5 relevant hashtags.
-
-Write ONLY the listing copy. No preamble. No "Here is the copy:".`;
-      }
-
-      // ─── Generate all 12 ─────────────────────────────────────────────────────────
-      async function generateAll() {
-        const btn = document.getElementById("gen-btn");
-        const progressBox = document.getElementById("progress-box");
-        const progressText = document.getElementById("progress-text");
-        const errorBox = document.getElementById("error-box");
-
-        btn.disabled = true;
-        errorBox.style.display = "none";
-        progressBox.style.display = "block";
-        copies = {};
-
-        const variants = ["emotional", "specs", "investment"];
-        const platforms = ["kijiji", "facebook", "instagram", "reddit"];
-        const total = variants.length * platforms.length;
-        let done = 0;
-
-        for (const v of variants) {
-          copies[v] = {};
-          for (const pl of platforms) {
-            progressText.textContent = `Generating ${v} copy for ${PLATFORMS[pl].label}… (${done + 1}/${total})`;
-            try {
-              const prompt = buildPrompt(v, pl);
-              const resp = await fetch("/api/generate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt }),
-              });
-              if (!resp.ok) {
-                const e = await resp.json().catch(() => ({}));
-                throw new Error(e.error || `Server error ${resp.status}`);
-              }
-              const data = await resp.json();
-              copies[v][pl] = data.text || "No content returned.";
-            } catch (e) {
-              copies[v][pl] = `⚠️ Error: ${e.message}`;
-            }
-            done++;
-          }
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            document.getElementById('investorForm').classList.add('hidden');
+            document.getElementById('successState').classList.remove('hidden');
         }
 
-        progressBox.style.display = "none";
-        btn.disabled = false;
-
-        // populate results and go to step 3
-        document.getElementById("gen-date").textContent =
-          `12 variants generated · ${new Date().toLocaleDateString()}`;
-        goStep(3);
-        renderCopy();
-      }
-
-      // ─── Results helpers ──────────────────────────────────────────────────────────
-      function renderCopy() {
-        const text = copies?.[activeVariant]?.[activePlatform] || "";
-        document.getElementById("copy-area").value = text;
-        updateCharCount();
-        document.getElementById("guide-title").textContent =
-          `📋 Posting Guide — ${PLATFORMS[activePlatform].label}`;
-        document.getElementById("guide-body").innerHTML =
-          GUIDES[activePlatform];
-      }
-
-      function updateCharCount() {
-        const text = document.getElementById("copy-area").value;
-        const max = PLATFORMS[activePlatform].max;
-        const el = document.getElementById("char-count");
-        el.textContent = `${text.length.toLocaleString()} / ${max.toLocaleString()} chars${text.length > max ? " ⚠️ Over limit — trim before posting" : ""}`;
-        el.className = "char-count" + (text.length > max ? " over" : "");
-      }
-
-      function setVariant(v, btn) {
-        activeVariant = v;
-        document
-          .querySelectorAll(".vcard")
-          .forEach((b) => b.classList.remove("on"));
-        btn.classList.add("on");
-        renderCopy();
-      }
-
-      function setPlatform(p, btn) {
-        activePlatform = p;
-        document
-          .querySelectorAll(".ptab")
-          .forEach((b) => b.classList.remove("on"));
-        btn.classList.add("on");
-        renderCopy();
-      }
-
-      function copyText() {
-        const text = document.getElementById("copy-area").value;
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById("copy-btn");
-          btn.textContent = "✓ Copied!";
-          btn.classList.add("copied");
-          setTimeout(() => {
-            btn.textContent = "Copy to Clipboard";
-            btn.classList.remove("copied");
-          }, 2000);
-        });
-      }
+        function resetForm() {
+            document.getElementById('investorForm').reset();
+            document.getElementById('successState').classList.add('hidden');
+            document.getElementById('investorForm').classList.remove('hidden');
+        }
     </script>
-  </body>
+</body>
 </html>
